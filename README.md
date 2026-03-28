@@ -105,24 +105,44 @@ claude mcp add ticktick python3 /full/path/to/TickTickCLI_MCP_app/ticktick_mcp_s
 
 ### Available MCP Tools
 
+#### Tasks
+
 | Tool | Description |
 |------|-------------|
-| `list_projects` | List all TickTick projects with IDs |
-| `list_tasks` | List tasks (all or filtered by project name) |
-| `create_task` | Create a task with title, project, due date, priority, tags |
+| `list_tasks` | List tasks — all projects or filtered by project name |
+| `get_task` | Get full details of a single task (subtasks, reminders, recurrence) |
+| `create_task` | Create a task with title, project, due date, priority, and tags |
+| `create_task_with_subtasks` | Create a checklist task with subtask items in one call |
 | `update_task` | Update an existing task's fields |
 | `complete_task` | Mark a task as complete |
 | `delete_task` | Permanently delete a task |
-| `get_project_details` | Get full project info with all tasks |
+| `move_task` | Move a task from one project to another |
+| `list_completed_tasks` | List completed tasks with optional project and date range filter |
+| `filter_tasks` | Advanced search — filter by project, priority, tags, status, and date range |
+
+#### Projects
+
+| Tool | Description |
+|------|-------------|
+| `list_projects` | List all TickTick projects with IDs |
+| `get_project_details` | Get full project info with all its tasks |
+| `create_project` | Create a new project with optional color and view mode |
+| `update_project` | Rename, recolor, or change the view mode of a project |
+| `delete_project` | Permanently delete a project and all its tasks |
 
 ### Example Prompts for Claude
 
 Once connected, you can say things like:
 - "Show me all my TickTick projects"
 - "Create a task called 'Review PR #42' in my Work project, due tomorrow, high priority"
+- "Create a checklist called 'Morning Routine' with subtasks: Make coffee, Check email, Review calendar"
 - "What tasks do I have due this week?"
+- "Show me everything I completed last week"
+- "Find all high-priority tasks tagged 'urgent'"
 - "Mark the grocery task as complete"
-- "Move 'Design review' to high priority"
+- "Move 'Design review' from Work to Personal"
+- "Create a new project called 'Q2 Goals' with kanban view"
+- "Rename my 'Misc' project to 'Someday'"
 
 ---
 
