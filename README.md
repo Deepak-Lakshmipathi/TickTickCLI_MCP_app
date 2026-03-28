@@ -1,11 +1,12 @@
-# TickTick CLI
+# TickTick CLI & MCP Server
 
-A lightweight CLI for managing TickTick tasks from the terminal. Designed to later be wrapped as an MCP server for use with Claude.
+A lightweight Python CLI + MCP server for managing TickTick tasks. Use it from the terminal, or let Claude manage your tasks directly via MCP.
 
 ## Prerequisites
 
 - Python 3.10+
 - A TickTick account
+- `httpx` and `mcp` libraries
 
 ## Setup
 
@@ -30,9 +31,11 @@ pip install -r requirements.txt
 python ticktick_cli.py setup YOUR_CLIENT_ID YOUR_CLIENT_SECRET
 ```
 
-A browser window will open asking you to authorize. After approving, tokens are saved to `~/.config/ticktick-cli/config.json`.
+A browser window will open asking you to authorize. After approving, tokens are saved to `~/.config/ticktick-cli/config.json`. This only happens once — tokens auto-refresh.
 
-## Usage
+---
+
+## CLI Usage
 
 ```bash
 # List all projects
@@ -69,16 +72,71 @@ python ticktick_cli.py update <task_id> --project <project_id> --title "New titl
 | 3 / medium | Medium |
 | 5 / high | High |
 
+---
+
+## MCP Server (Claude Integration)
+
+The MCP server wraps the same `ticktick_api.py` client and exposes it as tools that Claude can call directly.
+
+### Claude Desktop
+
+Add this to your `claude_desktop_config.json`:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`  
+**Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "ticktick": {
+      "command": "python3",
+      "args": ["/full/path/to/TickTickCLI_MCP_app/ticktick_mcp_server.py"]
+    }
+  }
+}
+```
+
+### Claude Code
+
+```bash
+claude mcp add ticktick python3 /full/path/to/TickTickCLI_MCP_app/ticktick_mcp_server.py
+```
+
+### Available MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `list_projects` | List all TickTick projects with IDs |
+| `list_tasks` | List tasks (all or filtered by project name) |
+| `create_task` | Create a task with title, project, due date, priority, tags |
+| `update_task` | Update an existing task's fields |
+| `complete_task` | Mark a task as complete |
+| `delete_task` | Permanently delete a task |
+| `get_project_details` | Get full project info with all tasks |
+
+### Example Prompts for Claude
+
+Once connected, you can say things like:
+- "Show me all my TickTick projects"
+- "Create a task called 'Review PR #42' in my Work project, due tomorrow, high priority"
+- "What tasks do I have due this week?"
+- "Mark the grocery task as complete"
+- "Move 'Design review' to high priority"
+
+---
+
 ## Architecture
 
 ```
-ticktick_auth.py  → OAuth flow, token storage & refresh
-ticktick_api.py   → API client (reusable for MCP)
-ticktick_cli.py   → CLI interface
+ticktick_auth.py       → OAuth flow, token storage & auto-refresh
+ticktick_api.py        → Stateless API client (shared by CLI + MCP)
+ticktick_cli.py        → CLI interface
+ticktick_mcp_server.py → MCP server (wraps ticktick_api.py)
 ```
 
-The `TickTickClient` class in `ticktick_api.py` is intentionally stateless and clean — when you're ready to build the MCP server, you just import it and wire the same methods to MCP tool definitions.
+The `TickTickClient` class in `ticktick_api.py` is the shared core — both the CLI and MCP server import and use the same client. This keeps logic DRY and means any API improvements benefit both interfaces.
 
 ## Token Storage
 
-Tokens are stored in `~/.config/ticktick-cli/config.json` with `600` permissions (owner-only read/write). The CLI automatically refreshes expired tokens.
+Tokens are stored in `~/.config/ticktick-cli/config.json` with `600` permissions (owner-only read/write). The CLI/MCP server automatically refreshes expired tokens.
