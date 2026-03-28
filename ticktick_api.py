@@ -174,6 +174,91 @@ class TickTickClient:
                 return p
         return None
 
+    def create_project(
+        self,
+        name: str,
+        color: Optional[str] = None,
+        view_mode: Optional[str] = None,
+        kind: Optional[str] = None,
+    ) -> dict:
+        """Create a new project."""
+        body: dict = {"name": name}
+        if color:
+            body["color"] = color
+        if view_mode:
+            body["viewMode"] = view_mode
+        if kind:
+            body["kind"] = kind.upper()
+        r = self.http.post("/project", json=body)
+        r.raise_for_status()
+        return r.json()
+
+    def update_project(self, project_id: str, **updates) -> dict:
+        """Update a project (name, color, viewMode, kind)."""
+        r = self.http.post(f"/project/{project_id}", json=updates)
+        r.raise_for_status()
+        return r.json()
+
+    def delete_project(self, project_id: str) -> bool:
+        """Delete a project."""
+        r = self.http.delete(f"/project/{project_id}")
+        r.raise_for_status()
+        return True
+
+    def move_tasks(self, moves: list[dict]) -> list[dict]:
+        """
+        Move one or more tasks between projects.
+        moves: [{"fromProjectId": "...", "toProjectId": "...", "taskId": "..."}]
+        """
+        r = self.http.post("/task/move", json=moves)
+        r.raise_for_status()
+        return r.json()
+
+    def list_completed_tasks(
+        self,
+        project_ids: Optional[list[str]] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> list[dict]:
+        """List completed tasks within a date range."""
+        body: dict = {}
+        if project_ids:
+            body["projectIds"] = project_ids
+        if start_date:
+            body["startDate"] = _normalize_date(start_date)
+        if end_date:
+            body["endDate"] = _normalize_date(end_date)
+        r = self.http.post("/task/completed", json=body)
+        r.raise_for_status()
+        return r.json()
+
+    def filter_tasks(
+        self,
+        project_ids: Optional[list[str]] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        priority: Optional[list[int]] = None,
+        tag: Optional[list[str]] = None,
+        status: Optional[list[int]] = None,
+    ) -> list[dict]:
+        """Filter tasks by advanced criteria."""
+        body: dict = {}
+        if project_ids:
+            body["projectIds"] = project_ids
+        if start_date:
+            body["startDate"] = _normalize_date(start_date)
+        if end_date:
+            body["endDate"] = _normalize_date(end_date)
+        if priority is not None:
+            body["priority"] = priority
+        if tag is not None:
+            body["tag"] = tag
+        if status is not None:
+            body["status"] = status
+        r = self.http.post("/task/filter", json=body)
+        r.raise_for_status()
+        return r.json()
+
 
 # ── Helpers ─────────────────────────────────────────────────────
 
