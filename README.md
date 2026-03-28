@@ -6,7 +6,6 @@ A lightweight CLI for managing TickTick tasks from the terminal. Designed to lat
 
 - Python 3.10+
 - A TickTick account
-- `httpx` library (`pip install httpx`)
 
 ## Setup
 
@@ -21,9 +20,8 @@ A lightweight CLI for managing TickTick tasks from the terminal. Designed to lat
 ### 2. Install
 
 ```bash
-cd ticktick-cli
+cd TickTickCLI_MCP_app
 pip install -r requirements.txt
-chmod +x ticktick
 ```
 
 ### 3. Authenticate
