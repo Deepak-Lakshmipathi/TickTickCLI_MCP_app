@@ -109,7 +109,7 @@ class TickTickClient:
 
     def delete_task(self, project_id: str, task_id: str) -> bool:
         """Delete a task."""
-        r = self.http.delete(f"/task/{project_id}/{task_id}")
+        r = self.http.delete(f"/project/{project_id}/task/{task_id}")
         r.raise_for_status()
         return True
 
